@@ -1316,4 +1316,7 @@
     <string name="RemindDayAt">\'Recordar el\' d \'de\' MMM \'a las\' HH:mm</string>
     <string name="RemindDayYearAt">\'Recordar el\' d \'de\' MMM \'de\' yyyy \'a las\' HH:mm</string>
     <string name="BotsMenuTitle">Menu</string>
+    <string name="BotStartHint">Toca aquí para usar este bot</string>
+    <string name="NotifyMe">Notificarme</string>
+    <string name="YouWillBeNotifiedWhenTheStreamStarts">Se te notificará cuando comience la transmisión en vivo.</string>
 </resources>

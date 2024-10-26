@@ -1137,4 +1137,7 @@
     <string name="RemindDayAt">MMM d HH:mm\'에 알리기\'</string>
     <string name="RemindDayYearAt">yyyy\'년\' M\'월\' d\'일\' HH:mm\'에 알림\'</string>
     <string name="BotsMenuTitle">메뉴</string>
+    <string name="BotStartHint">이 봇을 사용하려면 여기를 누르세요</string>
+    <string name="NotifyMe">알림 받기</string>
+    <string name="YouWillBeNotifiedWhenTheStreamStarts">라이브 스트림이 시작되면 알림을 받게 됩니다.</string>
 </resources>

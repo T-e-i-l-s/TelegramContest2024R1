@@ -937,12 +937,16 @@ public final class BulletinFactory {
     public static Bulletin createNotifyMeBulletin(BaseFragment fragment) {
         final Bulletin.LottieLayout layout = new Bulletin.LottieLayout(fragment.getParentActivity(), null);
 
-        final String text;
-        text = "You will be notified when the live stream starts.";
+        final String text = LocaleController.getString(R.string.YouWillBeNotifiedWhenTheStreamStarts);
 
         layout.textView.setText(text);
+        layout.textView.setEllipsize(null);
+        layout.textView.setSingleLine(false);
+        layout.textView.setMaxLines(5);
+
         layout.imageView.setImageResource(R.drawable.msg2_notifications);
         layout.imageView.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+
         return Bulletin.make(fragment, layout, Bulletin.DURATION_SHORT);
     }
 

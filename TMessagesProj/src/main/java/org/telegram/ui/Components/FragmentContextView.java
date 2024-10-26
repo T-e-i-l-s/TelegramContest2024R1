@@ -750,14 +750,6 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                 updateScheduleTimeRunnable.run();
                 hasToNotify = true;
                 saveHasToNotify();
-//                if (fragment.getParentActivity() == null) {
-//                    return;
-//                }
-//                ChatObject.Call call = chatActivity.getGroupCall();
-//                if (call == null) {
-//                    return;
-//                }
-//                VoIPHelper.startCall(fragment.getMessagesController().getChat(call.chatId), null, null, false, call.call != null && !call.call.rtmp_stream, fragment.getParentActivity(), fragment, fragment.getAccountInstance());
             } else if (currentStyle == STYLE_IMPORTING_MESSAGES) {
                 SendMessagesHelper.ImportingHistory importingHistory = fragment.getSendMessagesHelper().getImportingHistory(((ChatActivity) fragment).getDialogId());
                 if (importingHistory == null) {
@@ -2135,10 +2127,12 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                         }
                     }
                     subtitleTextView.setText(LocaleController.formatStartsTime(call.call.schedule_date, 4), false);
+
                     hasToNotify = getHasToNotify();
                     if (!hasToNotify) {
-                        int width = (int) Math.ceil(gradientTextPaint.measureText("Notify me"));
-                        markerLayout = new StaticLayout("Notify me", gradientTextPaint, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+                        String str = LocaleController.getString(R.string.NotifyMe);
+                        int width = (int) Math.ceil(gradientTextPaint.measureText(str));
+                        markerLayout = new StaticLayout(str, gradientTextPaint, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
                     } else {
                         updateScheduleTimeRunnable.run();
                     }

@@ -263,4 +263,7 @@
     <string name="RemindTodayAt">\'Отправить сегодня в\' HH:mm</string>
     <string name="RemindDayAt">\'Отправить\' d MMM \'в\' HH:mm</string>
     <string name="RemindDayYearAt">\'Напомнить\' d MMM yyyy \'в\' HH:mm</string>
+    <string name="BotStartHint">Нажмите здесь, чтобы использовать этого бота</string>
+    <string name="NotifyMe">Уведомить меня</string>
+    <string name="YouWillBeNotifiedWhenTheStreamStarts">Вам придёт уведомление, когда начнётся трансляция.</string>
 </resources>

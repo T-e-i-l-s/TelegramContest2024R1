@@ -266,7 +266,6 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.IDN;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -350,6 +349,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
     private boolean bottomOverlayLinks;
     private LinkSpanDrawable.LinksTextView bottomOverlayLinksText;
     private TextView bottomOverlayText;
+    private LinearLayout botStartHintContainerView;
     private TextView bottomOverlayStartButton;
     private ImageView bottomOverlayImage;
     private RadialProgressView bottomOverlayProgress;
@@ -7869,8 +7869,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             }
         };
         bottomOverlay.setWillNotDraw(false);
-//        bottomOverlay.setVisibility(View.INVISIBLE);
-        bottomOverlay.setBackgroundColor(Color.RED);
+        bottomOverlay.setVisibility(View.INVISIBLE);
         bottomOverlay.setFocusable(true);
         bottomOverlay.setFocusableInTouchMode(true);
         bottomOverlay.setClickable(true);
@@ -7923,52 +7922,47 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         bottomOverlayChat.setClipChildren(false);
         contentView.addView(bottomOverlayChat, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 51, Gravity.BOTTOM));
 
-        LinearLayout hintContainerView = new LinearLayout(context);
-        hintContainerView.setOrientation(LinearLayout.VERTICAL);
-        hintContainerView.setGravity(Gravity.CENTER_HORIZONTAL);
+        botStartHintContainerView = new LinearLayout(context);
+        botStartHintContainerView.setOrientation(LinearLayout.VERTICAL);
+        botStartHintContainerView.setGravity(Gravity.CENTER_HORIZONTAL);
+        botStartHintContainerView.setVisibility(View.GONE);
 
-        LinearLayout hintContentView = new LinearLayout(context);
-        hintContentView.setOrientation(LinearLayout.HORIZONTAL);
-        hintContentView.setGravity(Gravity.CENTER_VERTICAL);
-        hintContentView.setPadding(
+        LinearLayout botStartHintContentView = new LinearLayout(context);
+        botStartHintContentView.setOrientation(LinearLayout.HORIZONTAL);
+        botStartHintContentView.setGravity(Gravity.CENTER_VERTICAL);
+        botStartHintContentView.setPadding(
                 AndroidUtilities.dp(8),
                 AndroidUtilities.dp(8),
                 AndroidUtilities.dp(8),
                 AndroidUtilities.dp(8)
         );
 
-        GradientDrawable hintBackgroundDrawable = new GradientDrawable();
-        hintBackgroundDrawable.setColor(getThemedColor(Theme.key_undo_background));
-        hintBackgroundDrawable.setCornerRadius(AndroidUtilities.dp(8));
-        hintContentView.setBackground(hintBackgroundDrawable);
+        GradientDrawable botStartHintBackgroundDrawable = new GradientDrawable();
+        botStartHintBackgroundDrawable.setColor(getThemedColor(Theme.key_undo_background));
+        botStartHintBackgroundDrawable.setCornerRadius(AndroidUtilities.dp(8));
+        botStartHintContentView.setBackground(botStartHintBackgroundDrawable);
 
-        ImageView icon = new ImageView(context);
-        icon.setImageResource(R.drawable.index_arrow);
-        hintContentView.addView(icon, LayoutHelper.createFrame(AndroidUtilities.dp(7), AndroidUtilities.dp(7)));
+        ImageView botStartHintIcon = new ImageView(context);
+        botStartHintIcon.setImageResource(R.drawable.index_arrow);
+        botStartHintContentView.addView(botStartHintIcon, LayoutHelper.createFrame(AndroidUtilities.dp(7), AndroidUtilities.dp(7)));
 
-        TextView textView = new TextView(context);
-        textView.setText("Tap here to use this bot");
-        textView.setTextColor(Color.WHITE);
-        textView.setPadding(AndroidUtilities.dp(7), 0, AndroidUtilities.dp(8), 0);
-        textView.setTextSize(16);
-        hintContentView.addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+        TextView botStartHintLabelView = new TextView(context);
+        botStartHintLabelView.setText(LocaleController.getString(R.string.BotStartHint));
+        botStartHintLabelView.setTextColor(Color.WHITE);
+        botStartHintLabelView.setPadding(AndroidUtilities.dp(7), 0, AndroidUtilities.dp(8), 0);
+        botStartHintLabelView.setTextSize(16);
+        botStartHintContentView.addView(botStartHintLabelView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 
-        hintContainerView.addView(hintContentView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+        botStartHintContainerView.addView(botStartHintContentView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
 
         ImageView triangleView = new ImageView(context);
         triangleView.setImageResource(R.drawable.triangle_down);
         triangleView.setColorFilter(getThemedColor(Theme.key_undo_background), PorterDuff.Mode.SRC_IN);
-        hintContainerView.addView(triangleView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, AndroidUtilities.dp(2.5f)));
+        botStartHintContainerView.addView(triangleView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, AndroidUtilities.dp(2.5f)));
 
-        contentView.addView(hintContainerView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 8, 0, 8, 75));
+        contentView.addView(botStartHintContainerView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 8, 0, 8, 75));
 
-        if (currentUser != null && currentUser.bot && currentUser.id != UserObject.VERIFY && !UserObject.isDeleted(currentUser) && !UserObject.isReplyUser(currentUser) && !isInScheduleMode() && chatMode != MODE_PINNED && chatMode != MODE_SAVED && !isReport()) {
-            hintContainerView.setVisibility(View.VISIBLE);
-        } else {
-            hintContainerView.setVisibility(View.GONE);
-        }
-
-        contentView.requestLayout();
+        bottomOverlay.requestLayout();
 
         bottomOverlayStartButton = new TextView(context) {
             CellFlickerDrawable cellFlickerDrawable;
@@ -7990,7 +7984,6 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             @Override
             public void setVisibility(int visibility) {
                 super.setVisibility(visibility);
-
                 ViewGroup.LayoutParams params = bottomOverlayChat.getLayoutParams();
                 params.height = AndroidUtilities.dp(visibility == VISIBLE ? 51 + 8 * 2 : 51);
             }
@@ -8102,6 +8095,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
                 if (botUser.length() != 0) {
                     getMessagesController().sendBotStart(currentUser, botUser);
                 } else {
+                    botStartHintContainerView.setVisibility(View.GONE);
                     getSendMessagesHelper().sendMessage(SendMessagesHelper.SendMessageParams.of("/start", dialog_id, null, null, null, false, null, null, null, true, 0, null, false));
                 }
                 botUser = null;
@@ -25227,6 +25221,8 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             if (userBlocked) {
                 if (bottomOverlayStartButton != null) {
                     bottomOverlayStartButton.setVisibility(View.GONE);
+                    botStartHintContainerView.setVisibility(View.GONE);
+                    Log.d("MUSTAFIN_TEST", "2");
                 }
                 if (currentUser.bot) {
                     bottomOverlayChatText.setText(LocaleController.getString(R.string.BotUnblock));
@@ -25255,6 +25251,7 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
 //                bottomOverlayStartButton.setText(LocaleController.getString(R.string.BotStart));
                 if (bottomOverlayStartButton != null) {
                     bottomOverlayStartButton.setVisibility(View.VISIBLE);
+                    botStartHintContainerView.setVisibility(View.VISIBLE);
                 }
                 bottomOverlayChatText.setVisibility(View.GONE);
                 chatActivityEnterView.hidePopup(false);

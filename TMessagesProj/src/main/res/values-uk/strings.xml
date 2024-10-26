@@ -276,4 +276,7 @@
     <string name="RemindTodayAt">\'Нагадати сьогодні,\' HH:mm</string>
     <string name="RemindDayAt">\'Нагадати\' d MMM\',\' HH:mm</string>
     <string name="RemindDayYearAt">\'Нагадати\' d MMM yyyy\',\' HH:mm</string>
+    <string name="BotStartHint">Натисніть тут, щоб використовувати цього бота</string>
+    <string name="NotifyMe">Повідомте мене</string>
+    <string name="YouWillBeNotifiedWhenTheStreamStarts">Вас буде повідомлено, коли почнеться пряма трансляція.</string>
 </resources>

@@ -16,6 +16,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.LinearGradient;
@@ -76,7 +77,6 @@ import org.telegram.ui.ActionBar.BaseFragment;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.ChatActivity;
 import org.telegram.ui.Components.voip.CellFlickerDrawable;
-import org.telegram.ui.Components.voip.VoIPHelper;
 import org.telegram.ui.DialogsActivity;
 import org.telegram.ui.GroupCallActivity;
 import org.telegram.ui.LaunchActivity;
@@ -148,12 +148,27 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
     private boolean supportsCalls = true;
     private AvatarsImageView avatars;
 
+
+    private static final String PREFS_NAME = "stream_notification_prefs";
+    private SharedPreferences sharedPreferences;
+    public void saveHasToNotify() {
+        sharedPreferences = this.getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("" + chatActivity.getDialogId(), hasToNotify);
+        editor.apply();
+    }
+    public boolean getHasToNotify() {
+        sharedPreferences = this.getContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        return sharedPreferences.getBoolean("" + chatActivity.getDialogId(), false);
+    }
+
     private Paint gradientPaint;
     private LinearGradient linearGradient;
     private Matrix matrix;
     private int gradientWidth;
     private TextPaint gradientTextPaint;
-    private StaticLayout timeLayout;
+    private StaticLayout markerLayout;
+    private boolean hasToNotify;
     private RectF rect = new RectF();
     private boolean scheduleRunnableScheduled;
     private final Runnable updateScheduleTimeRunnable = new Runnable() {
@@ -165,7 +180,7 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
             }
             ChatObject.Call call = chatActivity.getGroupCall();
             if (call == null || !call.isScheduled()) {
-                timeLayout = null;
+                markerLayout = null;
                 scheduleRunnableScheduled = false;
                 return;
             }
@@ -178,7 +193,7 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                 str = AndroidUtilities.formatFullDuration(call.call.schedule_date - currentTime);
             }
             int width = (int) Math.ceil(gradientTextPaint.measureText(str));
-            timeLayout = new StaticLayout(str, gradientTextPaint, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+            markerLayout = new StaticLayout(str, gradientTextPaint, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
             AndroidUtilities.runOnUIThread(updateScheduleTimeRunnable, 1000);
             frameLayout.invalidate();
         }
@@ -295,8 +310,8 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
             @Override
             protected void dispatchDraw(Canvas canvas) {
                 super.dispatchDraw(canvas);
-                if (currentStyle == STYLE_INACTIVE_GROUP_CALL && timeLayout != null) {
-                    int width = (int) Math.ceil(timeLayout.getLineWidth(0)) + AndroidUtilities.dp(24);
+                if (currentStyle == STYLE_INACTIVE_GROUP_CALL && markerLayout != null) {
+                    int width = (int) Math.ceil(markerLayout.getLineWidth(0)) + AndroidUtilities.dp(24);
                     if (width != gradientWidth) {
                         linearGradient = new LinearGradient(0, 0, width * 1.7f, 0, new int[]{0xff648CF4, 0xff8C69CF, 0xffD45979, 0xffD45979}, new float[]{0.0f, 0.294f, 0.588f, 1.0f}, Shader.TileMode.CLAMP);
                         gradientPaint.setShader(linearGradient);
@@ -325,7 +340,7 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                     canvas.translate(x, y);
                     canvas.drawRoundRect(rect, AndroidUtilities.dp(16), AndroidUtilities.dp(16), gradientPaint);
                     canvas.translate(AndroidUtilities.dp(12), AndroidUtilities.dp(6));
-                    timeLayout.draw(canvas);
+                    markerLayout.draw(canvas);
                     canvas.restore();
                 }
             }
@@ -465,7 +480,9 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
         joinButton.setGravity(Gravity.CENTER);
         joinButton.setPadding(AndroidUtilities.dp(14), 0, AndroidUtilities.dp(14), 0);
         addView(joinButton, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, 28, Gravity.TOP | Gravity.RIGHT, 0, 10, 14, 0));
-        joinButton.setOnClickListener(v -> FragmentContextView.this.callOnClick());
+        joinButton.setOnClickListener(v -> {
+            FragmentContextView.this.callOnClick();
+        });
         if (flickOnAttach) {
             startJoinFlickerAnimation();
         }
@@ -729,14 +746,18 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                     GroupCallActivity.create((LaunchActivity) getContext(), AccountInstance.getInstance(VoIPService.getSharedInstance().getAccount()), null, null, false, null);
                 }
             } else if (currentStyle == STYLE_INACTIVE_GROUP_CALL) {
-                if (fragment.getParentActivity() == null) {
-                    return;
-                }
-                ChatObject.Call call = chatActivity.getGroupCall();
-                if (call == null) {
-                    return;
-                }
-                VoIPHelper.startCall(fragment.getMessagesController().getChat(call.chatId), null, null, false, call.call != null && !call.call.rtmp_stream, fragment.getParentActivity(), fragment, fragment.getAccountInstance());
+                BulletinFactory.createNotifyMeBulletin(this.fragment).show();
+                updateScheduleTimeRunnable.run();
+                hasToNotify = true;
+                saveHasToNotify();
+//                if (fragment.getParentActivity() == null) {
+//                    return;
+//                }
+//                ChatObject.Call call = chatActivity.getGroupCall();
+//                if (call == null) {
+//                    return;
+//                }
+//                VoIPHelper.startCall(fragment.getMessagesController().getChat(call.chatId), null, null, false, call.call != null && !call.call.rtmp_stream, fragment.getParentActivity(), fragment, fragment.getAccountInstance());
             } else if (currentStyle == STYLE_IMPORTING_MESSAGES) {
                 SendMessagesHelper.ImportingHistory importingHistory = fragment.getSendMessagesHelper().getImportingHistory(((ChatActivity) fragment).getDialogId());
                 if (importingHistory == null) {
@@ -1044,7 +1065,7 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
         currentStyle = style;
         frameLayout.setWillNotDraw(currentStyle != STYLE_INACTIVE_GROUP_CALL);
         if (style != STYLE_INACTIVE_GROUP_CALL) {
-            timeLayout = null;
+            markerLayout = null;
         }
 
         if (avatars != null) {
@@ -1321,7 +1342,7 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                 muteButton.invalidate();
             }
         } else if (currentStyle == STYLE_INACTIVE_GROUP_CALL) {
-            if (!scheduleRunnableScheduled) {
+            if (!scheduleRunnableScheduled && hasToNotify) {
                 scheduleRunnableScheduled = true;
                 updateScheduleTimeRunnable.run();
             }
@@ -2114,12 +2135,15 @@ public class FragmentContextView extends FrameLayout implements NotificationCent
                         }
                     }
                     subtitleTextView.setText(LocaleController.formatStartsTime(call.call.schedule_date, 4), false);
-                    if (!scheduleRunnableScheduled) {
-                        scheduleRunnableScheduled = true;
+                    hasToNotify = getHasToNotify();
+                    if (!hasToNotify) {
+                        int width = (int) Math.ceil(gradientTextPaint.measureText("Notify me"));
+                        markerLayout = new StaticLayout("Notify me", gradientTextPaint, width, Layout.Alignment.ALIGN_NORMAL, 1.0f, 0.0f, false);
+                    } else {
                         updateScheduleTimeRunnable.run();
                     }
                 } else {
-                    timeLayout = null;
+                    markerLayout = null;
                     joinButton.setVisibility(VISIBLE);
                     if (!TextUtils.isEmpty(call.call.title)) {
                         titleTextView.setText(call.call.title, false);

@@ -3,6 +3,7 @@ package org.telegram.ui.Components;
 import android.app.DownloadManager;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
@@ -931,6 +932,19 @@ public final class BulletinFactory {
     }
 
     //region Static Factory
+
+    @CheckResult
+    public static Bulletin createNotifyMeBulletin(BaseFragment fragment) {
+        final Bulletin.LottieLayout layout = new Bulletin.LottieLayout(fragment.getParentActivity(), null);
+
+        final String text;
+        text = "You will be notified when the live stream starts.";
+
+        layout.textView.setText(text);
+        layout.imageView.setImageResource(R.drawable.msg2_notifications);
+        layout.imageView.setColorFilter(Color.WHITE, PorterDuff.Mode.SRC_IN);
+        return Bulletin.make(fragment, layout, Bulletin.DURATION_SHORT);
+    }
 
     @CheckResult
     public static Bulletin createMuteBulletin(BaseFragment fragment, int setting) {

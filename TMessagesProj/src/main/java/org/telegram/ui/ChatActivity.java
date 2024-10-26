@@ -53,6 +53,7 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Build;
@@ -7920,6 +7921,53 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
         bottomOverlayChat.setVisibility(View.INVISIBLE);
         bottomOverlayChat.setClipChildren(false);
         contentView.addView(bottomOverlayChat, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 51, Gravity.BOTTOM));
+
+        LinearLayout hintContainerView = new LinearLayout(context);
+        hintContainerView.setOrientation(LinearLayout.VERTICAL);
+        hintContainerView.setGravity(Gravity.CENTER_HORIZONTAL);
+
+        LinearLayout hintContentView = new LinearLayout(context);
+        hintContentView.setOrientation(LinearLayout.HORIZONTAL);
+        hintContentView.setGravity(Gravity.CENTER_VERTICAL);
+        hintContentView.setPadding(
+                AndroidUtilities.dp(8),
+                AndroidUtilities.dp(8),
+                AndroidUtilities.dp(8),
+                AndroidUtilities.dp(8)
+        );
+
+        GradientDrawable hintBackgroundDrawable = new GradientDrawable();
+        hintBackgroundDrawable.setColor(getThemedColor(Theme.key_undo_background));
+        hintBackgroundDrawable.setCornerRadius(AndroidUtilities.dp(8));
+        hintContentView.setBackground(hintBackgroundDrawable);
+
+        ImageView icon = new ImageView(context);
+        icon.setImageResource(R.drawable.index_arrow);
+        hintContentView.addView(icon, LayoutHelper.createFrame(AndroidUtilities.dp(7), AndroidUtilities.dp(7)));
+
+        TextView textView = new TextView(context);
+        textView.setText("Tap here to use this bot");
+        textView.setTextColor(Color.WHITE);
+        textView.setPadding(AndroidUtilities.dp(7), 0, AndroidUtilities.dp(8), 0);
+        textView.setTextSize(16);
+        hintContentView.addView(textView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+
+        hintContainerView.addView(hintContentView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT));
+
+        ImageView triangleView = new ImageView(context);
+        triangleView.setImageResource(R.drawable.triangle_down);
+        triangleView.setColorFilter(getThemedColor(Theme.key_undo_background), PorterDuff.Mode.SRC_IN);
+        hintContainerView.addView(triangleView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, AndroidUtilities.dp(2.5f)));
+
+        contentView.addView(hintContainerView, LayoutHelper.createFrame(LayoutHelper.WRAP_CONTENT, LayoutHelper.WRAP_CONTENT, Gravity.CENTER_HORIZONTAL | Gravity.BOTTOM, 8, 0, 8, 75));
+
+        if (currentUser != null && currentUser.bot && currentUser.id != UserObject.VERIFY && !UserObject.isDeleted(currentUser) && !UserObject.isReplyUser(currentUser) && !isInScheduleMode() && chatMode != MODE_PINNED && chatMode != MODE_SAVED && !isReport()) {
+            hintContainerView.setVisibility(View.VISIBLE);
+        } else {
+            hintContainerView.setVisibility(View.GONE);
+        }
+
+        contentView.requestLayout();
 
         bottomOverlayStartButton = new TextView(context) {
             CellFlickerDrawable cellFlickerDrawable;

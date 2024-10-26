@@ -7869,7 +7869,8 @@ public class ChatActivity extends BaseFragment implements NotificationCenter.Not
             }
         };
         bottomOverlay.setWillNotDraw(false);
-        bottomOverlay.setVisibility(View.INVISIBLE);
+//        bottomOverlay.setVisibility(View.INVISIBLE);
+        bottomOverlay.setBackgroundColor(Color.RED);
         bottomOverlay.setFocusable(true);
         bottomOverlay.setFocusableInTouchMode(true);
         bottomOverlay.setClickable(true);
